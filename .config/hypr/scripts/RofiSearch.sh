@@ -44,4 +44,8 @@ if [[ -z "$query" ]]; then
 fi
 
 encoded_query=$(printf '%s' "$query" | jq -sRr @uri)
-xdg-open "${Search_Engine}${encoded_query}" >/dev/null 2>&1 &
+if ! pgrep -x brave >/dev/null 2>&1; then
+    brave --password-store=basic "${Search_Engine}${encoded_query}" >/dev/null 2>&1 &
+else
+    xdg-open "${Search_Engine}${encoded_query}" >/dev/null 2>&1 &
+fi

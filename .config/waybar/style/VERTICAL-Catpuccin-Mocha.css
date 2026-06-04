@@ -28,6 +28,14 @@ window#waybar > box {
   border-radius: 0;
 }
 
+.modules-left {
+  padding-left: 16px;
+}
+
+.modules-right {
+  padding-right: 16px;
+}
+
 tooltip {
   background: @base;
   opacity: 1;

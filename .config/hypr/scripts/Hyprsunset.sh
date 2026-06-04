@@ -1,99 +1,59 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-# Hyprsunset toggle + Waybar status helper
-# Phase 1: manual toggle only (no scheduling)
-# Icons:
-# - Off: bright sun
-# - On: sunset icon if available, otherwise a blue sun
-#
-# Customize via env vars:
-#   HYPRSUNSET_TEMP   default 4500 (K)
-#   HYPRSUNSET_ICON_MODE  sunset|blue  (default: sunset)
 
 STATE_FILE="$HOME/.cache/.hyprsunset_state"
 TARGET_TEMP="${HYPRSUNSET_TEMP:-4500}"
-ICON_MODE="${HYPRSUNSET_ICON_MODE:-sunset}"
 
 ensure_state() {
   [[ -f "$STATE_FILE" ]] || echo "off" > "$STATE_FILE"
 }
 
-# Render icons using pango markup to allow colorization
-icon_off() {
-  # universally available sun symbol
-  printf "☀"
-}
-
-icon_on() {
-  printf "🌙"
-}
+icon_off() { printf "☀"; }
+icon_on()  { printf "🌙"; }
 
 cmd_toggle() {
   ensure_state
-  state="$(cat "$STATE_FILE" || echo off)"
+  state="$(cat "$STATE_FILE")"
 
-  # Always stop any running hyprsunset first to avoid CTM manager conflicts
-  if pgrep -x hyprsunset >/dev/null 2>&1; then
-    pkill -x hyprsunset || true
-    # give it a moment to release the CTM manager
-    sleep 0.2
-  fi
+  pkill -x hyprsunset 2>/dev/null || true
 
-if [[ "$state" == "on" ]]; then
-    # Turning OFF: update state immediately, then apply identity in background
-    echo off > "$STATE_FILE"
-    pkill -RTMIN+8 waybar || true
-    if command -v hyprsunset >/dev/null 2>&1; then
-      { nohup hyprsunset -i >/dev/null 2>&1; sleep 0.3; pkill -x hyprsunset || true; } &
-    fi
-    notify-send -u low "Hyprsunset: Disabled" || true
+  if [[ "$state" == "on" ]]; then
+    echo "off" > "$STATE_FILE"
+    notify-send -u low "Hyprsunset: Desactivado" || true
   else
-    # Turning ON: start hyprsunset at target temp in background
-    if command -v hyprsunset >/dev/null 2>&1; then
-      nohup hyprsunset -t "$TARGET_TEMP" >/dev/null 2>&1 &
-    fi
-    echo on > "$STATE_FILE"
-    notify-send -u low "Hyprsunset: Enabled" "${TARGET_TEMP}K" || true
-    pkill -RTMIN+8 waybar || true
+    sleep 0.1
+    nohup hyprsunset -t "$TARGET_TEMP" >/dev/null 2>&1 &
+    disown
+    echo "on" > "$STATE_FILE"
+    notify-send -u low "Hyprsunset: Activado" "${TARGET_TEMP}K" || true
   fi
+
+  pkill -RTMIN+8 waybar || true
 }
 
 cmd_status() {
   ensure_state
-  # Prefer live process detection; fall back to state file
-  if pgrep -x hyprsunset >/dev/null 2>&1; then
-    onoff="on"
-  else
-    onoff="$(cat "$STATE_FILE" || echo off)"
-  fi
+  state="$(cat "$STATE_FILE")"
 
-  if [[ "$onoff" == "on" ]]; then
-    txt="$(icon_on)"
-    cls="on"
-    tip="Night light on @ ${TARGET_TEMP}K"
+  if [[ "$state" == "on" ]]; then
+    printf '{"text":"%s","class":"on","tooltip":"Modo noche activo @ %sK"}\n' \
+      "$(icon_on)" "$TARGET_TEMP"
   else
-    txt="<span size='16pt'>$(icon_off)</span>"
-    cls="off"
-    tip="Night light off"
+    printf '{"text":"<span size='\''16pt'\''>%s</span>","class":"off","tooltip":"Modo noche desactivado"}\n' \
+      "$(icon_off)"
   fi
-  printf '{"text":"%s","class":"%s","tooltip":"%s"}\n' "$txt" "$cls" "$tip"
 }
 
 cmd_init() {
   ensure_state
-  state="$(cat "$STATE_FILE" || echo off)"
-
-  if [[ "$state" == "on" ]]; then
-    if command -v hyprsunset >/dev/null 2>&1; then
-      nohup hyprsunset -t "$TARGET_TEMP" >/dev/null 2>&1 &
-    fi
+  if [[ "$(cat "$STATE_FILE")" == "on" ]]; then
+    nohup hyprsunset -t "$TARGET_TEMP" >/dev/null 2>&1 &
+    disown
   fi
 }
 
 case "${1:-}" in
   toggle) cmd_toggle ;;
   status) cmd_status ;;
-  init) cmd_init ;;
-  *) echo "usage: $0 [toggle|status|init]" >&2; exit 2 ;;
- esac
+  init)   cmd_init ;;
+  *) echo "uso: $0 [toggle|status|init]" >&2; exit 2 ;;
+esac
