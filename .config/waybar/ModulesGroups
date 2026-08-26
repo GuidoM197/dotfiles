@@ -96,14 +96,8 @@
 },
 "group/notify": {
 	"orientation": "inherit",
-	"drawer": {
-		"transition-duration": 500,
-		"children-class": "custom/swaync",
-		"transition-left-to-right": false
-        },
 	"modules": [
 		"custom/swaync",
-		"custom/dot_update",
 	]
 },
 
