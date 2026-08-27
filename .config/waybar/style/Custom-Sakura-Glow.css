@@ -1,0 +1,195 @@
+/* ---- Custom: Sakura Glow ---- */
+/* Floating pill bar, dark translucent background, red ambient glow */
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-weight: bold;
+    min-height: 0;
+    font-size: 99%;
+    font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
+}
+
+window#waybar {
+    background: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 24px;
+    color: #f5e6e8;
+    transition-property: background-color;
+    transition-duration: .5s;
+    font-size: 14px;
+}
+
+window#waybar > box {
+    background-color: rgba(15, 10, 12, 0.85);
+    border-radius: 24px;
+    padding: 4px 14px;
+}
+
+window#waybar.hidden {
+    opacity: 0.1;
+    font-size: 14px;
+}
+
+window#waybar.empty,
+window#waybar.empty #window {
+    padding: 0px;
+    border: 0px;
+    background-color: transparent;
+    font-size: 14px;
+}
+
+tooltip {
+    color: #f5e6e8;
+    background: #1a0e10;
+    opacity: 0.9;
+    border-radius: 10px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(220, 20, 60, 0.6);
+}
+
+tooltip label {
+    color: #f5e6e8;
+    font-size: 14px;
+}
+
+#taskbar button,
+#workspaces button {
+    background-color: transparent;
+    color: #b08a8f;
+    box-shadow: none;
+    text-shadow: none;
+    padding: 0px 6px;
+    border-radius: 9px;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#taskbar button.active,
+#workspaces button.active {
+    background-color: rgba(220, 20, 60, 0.9);
+    color: #fff5f5;
+    padding: 0px 10px;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#taskbar button:hover,
+#workspaces button:hover {
+    background: rgba(220, 20, 60, 0.25);
+    color: #fff5f5;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#workspaces button.urgent {
+    background-color: #dc143c;
+    color: #fff5f5;
+}
+
+#backlight,
+#backlight-slider,
+#battery,
+#bluetooth,
+#clock,
+#cpu,
+#disk,
+#idle_inhibitor,
+#keyboard-state,
+#memory,
+#mode,
+#mpris,
+#network,
+#power-profiles-daemon,
+#pulseaudio,
+#pulseaudio-slider,
+#taskbar,
+#temperature,
+#tray,
+#window,
+#wireplumber,
+#workspaces,
+#custom-nightlight {
+    padding: 0px 8px;
+}
+
+#clock {
+    color: #f5e6e8;
+}
+
+#battery {
+    color: #f5e6e8;
+}
+
+@keyframes blink {
+    to {
+        background-color: #dc143c;
+        color: #fff5f5;
+    }
+}
+
+#battery.critical:not(.charging) {
+    color: #dc143c;
+    animation-name: blink;
+    animation-duration: 3.0s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+#pulseaudio,
+#wireplumber {
+    color: #f5e6e8;
+}
+
+#pulseaudio.muted,
+#wireplumber.muted {
+    color: #7a6165;
+}
+
+#custom-nightlight {
+    color: #f5e6e8;
+}
+
+#tray {
+    padding: 0px 4px;
+}
+
+#tray > .needs-attention {
+    background-color: #dc143c;
+    border-radius: 50px;
+}
+
+/* Notification-style badges (mirrors the red circular count badge look) */
+#custom-notification,
+#custom-notification-count {
+    background-color: #dc143c;
+    color: #fff5f5;
+    border-radius: 50px;
+    padding: 0px 8px;
+    margin: 4px 2px;
+}
+
+#backlight-slider slider,
+#pulseaudio-slider slider {
+    min-width: 0px;
+    min-height: 0px;
+    opacity: 0;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+
+#backlight-slider trough,
+#pulseaudio-slider trough {
+    min-width: 80px;
+    min-height: 5px;
+    border-radius: 5px;
+}
+
+#backlight-slider highlight,
+#pulseaudio-slider highlight {
+    min-height: 10px;
+    border-radius: 5px;
+}

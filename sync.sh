@@ -4,7 +4,7 @@ set -e
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 
-configs=(hypr waybar rofi)
+configs=(hypr waybar rofi swaync)
 
 for cfg in "${configs[@]}"; do
     echo "Sincronizando $cfg..."
