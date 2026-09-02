@@ -65,39 +65,51 @@ mapfile -d '' PICS < <(find -L "${wallDIR}" -type f \( \
   -iname "*.bmp" -o -iname "*.tiff" -o -iname "*.webp" -o \
   -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.mov" -o -iname "*.webm" \) -print0)
 
-RANDOM_PIC="${PICS[$((RANDOM % ${#PICS[@]}))]}"
-RANDOM_PIC_NAME=". random"
+# Sort wallpapers and hand them to WallpaperCarousel.sh (rofi script-mode
+# modi) via a temp file - it drives the sliding-carousel display itself.
+IFS=$'\n' sorted_pics=($(sort <<<"${PICS[*]}"))
+unset IFS
 
-# Rofi command
-rofi_command="rofi -i -show -dmenu -config $rofi_theme -theme-str $rofi_override"
+if [[ ${#sorted_pics[@]} -eq 0 ]]; then
+  notify-send -i "$iDIR/error.png" "E-R-R-O-R" "No wallpapers found in $wallDIR"
+  exit 1
+fi
 
-# Sorting Wallpapers
-menu() {
-  IFS=$'\n' sorted_options=($(sort <<<"${PICS[*]}"))
+carousel_list_file=$(mktemp /tmp/wallpaper_carousel_list.XXXXXX)
+carousel_result_file=$(mktemp /tmp/wallpaper_carousel_result.XXXXXX)
+printf '%s\n' "${sorted_pics[@]}" >"$carousel_list_file"
+trap 'rm -f "$carousel_list_file" "$carousel_result_file"' EXIT
 
-  printf "%s\x00icon\x1f%s\n" "$RANDOM_PIC_NAME" "$RANDOM_PIC"
+# Wallpaper active before opening the picker: restored if the user cancels
+# (Esc), and used to open the carousel centered on the current wallpaper.
+original_wallpaper=$(swww query 2>/dev/null | awk -F'image: ' '/image:/{print $2; exit}')
+start_index=0
+for i in "${!sorted_pics[@]}"; do
+  if [[ "${sorted_pics[$i]}" == "$original_wallpaper" ]]; then
+    start_index=$i
+    break
+  fi
+done
 
-  for pic_path in "${sorted_options[@]}"; do
-    pic_name=$(basename "$pic_path")
-    if [[ "$pic_name" =~ \.gif$ ]]; then
-      cache_gif_image="$HOME/.cache/gif_preview/${pic_name}.png"
-      if [[ ! -f "$cache_gif_image" ]]; then
-        mkdir -p "$HOME/.cache/gif_preview"
-        magick "$pic_path[0]" -resize 1920x1080 "$cache_gif_image"
-      fi
-      printf "%s\x00icon\x1f%s\n" "$pic_name" "$cache_gif_image"
-    elif [[ "$pic_name" =~ \.(mp4|mkv|mov|webm|MP4|MKV|MOV|WEBM)$ ]]; then
-      cache_preview_image="$HOME/.cache/video_preview/${pic_name}.png"
-      if [[ ! -f "$cache_preview_image" ]]; then
-        mkdir -p "$HOME/.cache/video_preview"
-        ffmpeg -v error -y -i "$pic_path" -ss 00:00:01.000 -vframes 1 "$cache_preview_image"
-      fi
-      printf "%s\x00icon\x1f%s\n" "$pic_name" "$cache_preview_image"
-    else
-      printf "%s\x00icon\x1f%s\n" "$pic_name" "$pic_path"
-    fi
-  done
-}
+export WALL_CAROUSEL_LIST="$carousel_list_file"
+export WALL_CAROUSEL_RESULT="$carousel_result_file"
+export WALL_CAROUSEL_START="$start_index"
+carousel_script="$HOME/.config/hypr/UserScripts/WallpaperCarousel.sh"
+
+# Left/Right default to moving the text cursor in the search box
+# (kb-move-char-back/forward); free them up and rebind to the custom
+# keybindings WallpaperCarousel.sh reads (RETV 10/11) for carousel sliding.
+# -selected-row: on the very first frame rofi has no "previous selection" to
+# keep, so the script's own new-selection header is ignored and it defaults
+# to row 0 (leftmost) - this flag forces the initial highlight to the middle
+# slot (index 2 of the 5 WallpaperCarousel.sh prints) independent of that.
+rofi_cmd=(
+  rofi -show wallpaper-carousel -modes "wallpaper-carousel:$carousel_script"
+  -config "$rofi_theme" -theme-str "$rofi_override"
+  -kb-move-char-back "Control+b" -kb-move-char-forward "Control+f"
+  -kb-custom-1 "Left" -kb-custom-2 "Right"
+  -selected-row 2
+)
 
 
 modify_startup_config() {
@@ -162,27 +174,19 @@ apply_video_wallpaper() {
 
 # Main function
 main() {
-  choice=$(menu | $rofi_command)
-  choice=$(echo "$choice" | xargs)
-  RANDOM_PIC_NAME=$(echo "$RANDOM_PIC_NAME" | xargs)
+  "${rofi_cmd[@]}"
 
-  if [[ -z "$choice" ]]; then
-    echo "No choice selected. Exiting."
+  if [[ ! -s "$carousel_result_file" ]]; then
+    echo "Cancelled. Restoring original wallpaper."
+    [[ -n "$original_wallpaper" ]] && swww img "$original_wallpaper" $SWWW_PARAMS
     exit 0
   fi
 
-  # Handle random selection correctly
-  if [[ "$choice" == "$RANDOM_PIC_NAME" ]]; then
-    choice=$(basename "$RANDOM_PIC")
-  fi
+  selected_file=$(<"$carousel_result_file")
 
-  choice_basename=$(basename "$choice" | sed 's/\(.*\)\.[^.]*$/\1/')
-
-  # Search for the selected file in the wallpapers directory, including subdirectories
-  selected_file=$(find "$wallDIR" -iname "$choice_basename.*" -print -quit)
-
-  if [[ -z "$selected_file" ]]; then
-    echo "File not found. Selected choice: $choice"
+  if [[ -z "$selected_file" || ! -f "$selected_file" ]]; then
+    echo "File not found. Selected choice: $selected_file"
+    [[ -n "$original_wallpaper" ]] && swww img "$original_wallpaper" $SWWW_PARAMS
     exit 1
   fi
 

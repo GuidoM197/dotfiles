@@ -106,11 +106,35 @@ wait_for_templates() {
 
 # Run wallust (silent) to regenerate templates defined in ~/.config/wallust/wallust.toml
 # -s is used in this repo to keep things quiet and avoid extra prompts
+# Per-wallpaper overrides: use a hand-picked colorscheme instead of extracting
+# one from the image, for wallpapers where the auto palette doesn't fit.
+declare -A wallpaper_scheme_overrides=(
+  ["$HOME/Pictures/wallpapers/red_sakura_wallpaper.jpeg"]="sakura-glow"
+  ["$HOME/Pictures/wallpapers/Anime-Girl1.png"]="anime-girl-neon"
+  ["$HOME/Pictures/wallpapers/wano_amigasa_village.jpg"]="wano-forest"
+  ["$HOME/Pictures/wallpapers/toji_fushiguro.png"]="toji-purple"
+  ["$HOME/Pictures/wallpapers/sea1.jpg"]="ocean-blue"
+  ["$HOME/Pictures/wallpapers/Nature - Concept Butterflies.png"]="butterfly-emerald"
+  ["$HOME/Pictures/wallpapers/Fantasy-Mountain.png"]="temple-forest-dark"
+  ["$HOME/Pictures/wallpapers/Fantasy-Landscape3.png"]="moonlit-sakura-blush"
+  ["$HOME/Pictures/wallpapers/Fantasy-IcyMountain.png"]="snowy-peak-steel"
+  ["$HOME/Pictures/wallpapers/Fantasy - Mountain Lake.jpeg"]="mountain-lake-teal"
+  ["$HOME/Pictures/wallpapers/City-Rain.png"]="rainy-street-amber"
+  ["$HOME/Pictures/wallpapers/Bonsai-Plant.png"]="bonsai-pine"
+  ["$HOME/Pictures/wallpapers/Anime-Purple-eyes.png"]="purple-eyes-violet"
+  ["$HOME/Pictures/wallpapers/Anime-Girl-Night-Sky.jpg"]="night-sky-azure"
+)
+
 start_ts=$(date +%s)
-wallust run -s "$wallpaper_path" || true
+if [[ -n "${wallpaper_scheme_overrides[$wallpaper_path]:-}" ]]; then
+  wallust cs -s "${wallpaper_scheme_overrides[$wallpaper_path]}" || true
+else
+  wallust run -s "$wallpaper_path" || true
+fi
 wallust_targets=(
   "$HOME/.config/waybar/wallust/colors-waybar.css"
   "$HOME/.config/rofi/wallust/colors-rofi.rasi"
+  "$HOME/.config/swaync/wallust/colors-wallust.css"
 )
 wait_for_templates "$start_ts" "${wallust_targets[@]}" || true
 
@@ -133,4 +157,10 @@ if command -v waybar-msg >/dev/null 2>&1; then
   waybar-msg cmd reload >/dev/null 2>&1 || true
 elif pidof waybar >/dev/null; then
   killall -SIGUSR2 waybar 2>/dev/null || true
+fi
+
+# Prompt SwayNC to reload colors
+if command -v swaync-client >/dev/null 2>&1; then
+  swaync-client --reload-config >/dev/null 2>&1 || true
+  swaync-client --reload-css >/dev/null 2>&1 || true
 fi

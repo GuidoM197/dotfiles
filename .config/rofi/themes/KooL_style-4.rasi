@@ -23,9 +23,9 @@ configuration {
 /*****----- Global Properties -----*****/
 * {
     background-alt: @color0;
-    /* selected uses color12, active uses color11 (match other working styles) */
-    selected:       @color12;
-    active:         @color11;
+    /* selected accent is the sakura red (color11), active uses color12 */
+    selected:       @color11;
+    active:         @color12;
     urgent:         @color13;
     
     border-color:                rgba(151, 148, 145, 0.25);
@@ -76,8 +76,8 @@ window {
     border-radius:               20px;
     border-color:                @border-color;
     cursor:                      "default";
-    /* Backgroud Colors */
-    background-color:            @background-color;
+    /* Translucent so the compositor's layerrule blur (WindowRules.conf) shows through */
+    background-color:            rgba(35, 26, 28, 0.38);
 }
 
 /*****----- Main Box -----*****/
@@ -96,7 +96,7 @@ mainbox {
 /*****----- A Custom Box -----*****/
 custombox {
     spacing:                     14px;
-    background-color:            @background-color;
+    background-color:            transparent;
     text-color:                  @foreground-color;
     orientation:                 horizontal;
     children:                    [ "listview" ];
@@ -109,9 +109,9 @@ inputbar {
     margin:                      0px;
     padding:                     14px 20px;
     border:                      0px solid;
-    border-radius:               100px;
+    border-radius:               16px;
     border-color:                @border-color;
-    background-color:            @alternate-background;
+    background-color:            rgba(20, 14, 15, 0.65);
     text-color:                  @foreground;
     children:                    [ "textbox-prompt-colon", "entry" ];
 }
@@ -123,20 +123,22 @@ prompt {
 }
 textbox-prompt-colon {
     enabled:                     true;
-    padding:                     5px 0px;
+    padding:                     4px 8px 4px 2px;
     expand:                      false;
-    str:                         " 🔎";
-    background-color:            inherit;
-    text-color:                  inherit;
+    vertical-align:               0.5;
+    horizontal-align:             0.5;
+    str:                         "";
+    background-color:            transparent;
+    text-color:                  @foreground;
 }
 entry {
     enabled:                     true;
     padding:                     5px 0px;
-    background-color:            @alternate-background;
+    background-color:            transparent;
     text-color:                  @foreground;
     cursor:                      text;
     placeholder:                 "Search...";
-    placeholder-color:           inherit;
+    placeholder-color:           rgba(234, 230, 228, 0.45);
 }
 num-filtered-rows {
     enabled:                     true;
@@ -179,7 +181,7 @@ listview {
     spacing:                     6px;
     margin:                      0px;
     padding:                     12px;
-    border:                      1px solid;
+    border:                      0px solid;
     border-radius:               14px;
     border-color:                @border-color;
     background-color:            transparent;
@@ -219,32 +221,41 @@ element normal.active {
     text-color:                  @active-foreground;
 }
 
-element-text selected,
 element selected.normal {
-    background-color:            @selected;
-    text-color:                  @background;
+    background-color:            rgba(55, 42, 44, 0.55);
+    text-color:                  @foreground;
+    border:                      0px 0px 0px 3px solid;
+    border-color:                @selected;
+    border-radius:                12px;
 }
 element selected.urgent {
-    background-color:            @selected;
-    text-color:                  @background;
+    background-color:            rgba(55, 42, 44, 0.55);
+    text-color:                  @foreground;
+    border:                      0px 0px 0px 3px solid;
+    border-color:                @selected;
+    border-radius:                12px;
 }
 element selected.active {
-    background-color:            @selected;
-    text-color:                  @background;
+    background-color:            rgba(55, 42, 44, 0.55);
+    text-color:                  @foreground;
+    border:                      0px 0px 0px 3px solid;
+    border-color:                @selected;
+    border-radius:                12px;
 }
 element alternate.normal {
-    background-color:            @alternate-normal-background;
+    background-color:            transparent;
     text-color:                  @alternate-normal-foreground;
 }
 element alternate.urgent {
-    background-color:            @alternate-urgent-background;
+    background-color:            @urgent-background;
     text-color:                  @alternate-urgent-foreground;
 }
 element alternate.active {
-    background-color:            @alternate-active-background;
+    background-color:            transparent;
     text-color:                  @alternate-active-foreground;
 }
 element-icon {
+    size:                        38px;
     background-color:            transparent;
     text-color:                  inherit;
     cursor:                      inherit;

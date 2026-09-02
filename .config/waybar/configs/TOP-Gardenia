@@ -38,6 +38,7 @@
 	"backlight#2",
 	"battery",
 	"clock#5",
+	"custom/ports",
 	"custom/nightlight"
 	],
 

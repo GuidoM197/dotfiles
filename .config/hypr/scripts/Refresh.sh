@@ -43,6 +43,11 @@ done
 sleep 0.1
 waybar &
 
+# reload eww (Listening Ports widget) with the fresh wallust colors
+if pidof eww >/dev/null; then
+  eww reload
+fi
+
 # relaunch swaync
 sleep 0.3
 swaync >/dev/null 2>&1 &

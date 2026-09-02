@@ -1,5 +1,8 @@
 /* ---- Custom: Sakura Glow ---- */
 /* Floating pill bar, dark translucent background, red ambient glow */
+/* Colors driven by wallust (~/.config/waybar/wallust/colors-waybar.css) */
+
+@import url("wallust/colors-waybar.css");
 
 * {
     font-family: "JetBrainsMono Nerd Font";
@@ -15,14 +18,14 @@ window#waybar {
     border: none;
     box-shadow: none;
     border-radius: 24px;
-    color: #f5e6e8;
+    color: @foreground;
     transition-property: background-color;
     transition-duration: .5s;
     font-size: 14px;
 }
 
 window#waybar > box {
-    background-color: rgba(15, 10, 12, 0.85);
+    background-color: @background-glow;
     border-radius: 24px;
     padding: 4px 14px;
 }
@@ -41,24 +44,24 @@ window#waybar.empty #window {
 }
 
 tooltip {
-    color: #f5e6e8;
-    background: #1a0e10;
+    color: @foreground;
+    background: @color0;
     opacity: 0.9;
     border-radius: 10px;
     border-width: 2px;
     border-style: solid;
-    border-color: rgba(220, 20, 60, 0.6);
+    border-color: @accent-60;
 }
 
 tooltip label {
-    color: #f5e6e8;
+    color: @foreground;
     font-size: 14px;
 }
 
 #taskbar button,
 #workspaces button {
     background-color: transparent;
-    color: #b08a8f;
+    color: @muted;
     box-shadow: none;
     text-shadow: none;
     padding: 0px 6px;
@@ -68,8 +71,8 @@ tooltip label {
 
 #taskbar button.active,
 #workspaces button.active {
-    background-color: rgba(220, 20, 60, 0.9);
-    color: #fff5f5;
+    background-color: @accent-90;
+    color: @foreground;
     padding: 0px 10px;
     border-radius: 50px;
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
@@ -77,15 +80,15 @@ tooltip label {
 
 #taskbar button:hover,
 #workspaces button:hover {
-    background: rgba(220, 20, 60, 0.25);
-    color: #fff5f5;
+    background: @accent-25;
+    color: @foreground;
     border-radius: 50px;
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
 #workspaces button.urgent {
-    background-color: #dc143c;
-    color: #fff5f5;
+    background-color: @accent;
+    color: @foreground;
 }
 
 #backlight,
@@ -115,22 +118,22 @@ tooltip label {
 }
 
 #clock {
-    color: #f5e6e8;
+    color: @foreground;
 }
 
 #battery {
-    color: #f5e6e8;
+    color: @foreground;
 }
 
 @keyframes blink {
     to {
-        background-color: #dc143c;
-        color: #fff5f5;
+        background-color: @accent;
+        color: @foreground;
     }
 }
 
 #battery.critical:not(.charging) {
-    color: #dc143c;
+    color: @accent;
     animation-name: blink;
     animation-duration: 3.0s;
     animation-timing-function: steps(12);
@@ -140,16 +143,16 @@ tooltip label {
 
 #pulseaudio,
 #wireplumber {
-    color: #f5e6e8;
+    color: @foreground;
 }
 
 #pulseaudio.muted,
 #wireplumber.muted {
-    color: #7a6165;
+    color: @muted-dim;
 }
 
 #custom-nightlight {
-    color: #f5e6e8;
+    color: @foreground;
 }
 
 #tray {
@@ -157,15 +160,15 @@ tooltip label {
 }
 
 #tray > .needs-attention {
-    background-color: #dc143c;
+    background-color: @accent;
     border-radius: 50px;
 }
 
 /* Notification-style badges (mirrors the red circular count badge look) */
 #custom-notification,
 #custom-notification-count {
-    background-color: #dc143c;
-    color: #fff5f5;
+    background-color: @accent;
+    color: @foreground;
     border-radius: 50px;
     padding: 0px 8px;
     margin: 4px 2px;

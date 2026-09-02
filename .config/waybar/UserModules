@@ -7,4 +7,10 @@
 
 {
 
+"custom/ports": {
+	"format": "󰙜",
+	"tooltip": false,
+	"on-click": "$HOME/.config/eww/scripts/toggle_ports.sh"
+	}
+
 }

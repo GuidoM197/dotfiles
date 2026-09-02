@@ -9,8 +9,11 @@ configuration {
 }
 
 window {
-  width: 75%;
+  width: 55%;
   height: inherit;
+  location: center;
+  anchor: center;
+  y-offset: 32%;
 }
 
 /* ---- Mainbox ---- */
@@ -27,13 +30,16 @@ entry {
 }
 
 /* ---- Listview ---- */
+/* 5 slots, driven entirely by WallpaperCarousel.sh (rofi script-mode modi):
+   it always reprints [center-2, center-1, center, center+1, center+2] and
+   pins the highlight to the middle slot (index 2) via "new-selection", so
+   the center item is always the current selection and Left/Right slide the
+   whole window by one - a true carousel, not rofi's native page-jump. */
 listview {
-  columns: 6;
-  lines: 2;
-  spacing: 20px;
+  columns: 5;
+  lines: 1;
+  spacing: 16px;
   padding: 10px;
-  columns: 6;
-  lines: 2;
   flow: horizontal;
   fixed-width: true;
   fixed-height: true;
@@ -45,20 +51,34 @@ element {
   orientation: vertical;
   padding: 0px;
   spacing: 0px;
-  border-radius: 10px;
-  padding: 0px;
+  border-radius: 14px;
   margin: 0px;
+}
+
+element normal.normal {
+  background-color: transparent;
 }
 
 element selected.normal {
   background-color: transparent;
+  border: 3px;
+  border-radius: 14px;
+  border-color: @selected;
 }
 
 element-icon {
     text-color:                  inherit;
-    size:                        10%;
-    margin:                      -30px;
     cursor:                      inherit;
+}
+
+/* NOTE: negative margins here underflow to ~4294967270px on this rofi build
+   (2.0.0) and silently break the layout - do not use negative margin/size. */
+element-icon normal.normal {
+  size: 7%;
+}
+
+element-icon selected.normal {
+  size: 11%;
 }
 
 element-text {
@@ -66,4 +86,12 @@ element-text {
   horizontal-align: 0.5;
   padding: 6px;
   margin: 6px;
+}
+
+element-text normal.normal {
+  text-color: rgba(255, 255, 255, 0.45);
+}
+
+element-text selected.normal {
+  text-color: @foreground;
 }

@@ -1,12 +1,7 @@
 /* ----------- 💫 https://github.com/LinuxBeginnings 💫 -------- */
-/* swaync colors - matched to waybar Custom-Sakura-Glow.css palette */
+/* swaync colors - driven by wallust (~/.config/swaync/wallust/colors-wallust.css) */
 
-@define-color base #0f0a0c;
-@define-color surface0 #1c1416;
-@define-color surface1 #2a1e21;
-@define-color text #f5e6e8;
-@define-color red #dc143c;
-@define-color blue #dc143c;
+@import url("wallust/colors-wallust.css");
 
 @define-color noti-border-color alpha(@red, 0.35);
 @define-color noti-bg alpha(@base, 0.9);
@@ -16,8 +11,8 @@
 
 :root {
     --noti-bg-focus: transparent;
-    --noti-bg-hover: rgba(220, 20, 60, 0.12);
-    --noti-bg-darker: #1c1416;
+    --noti-bg-hover: alpha(@red, 0.12);
+    --noti-bg-darker: @surface0;
 }
 
 * {
